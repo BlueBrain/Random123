@@ -89,7 +89,6 @@ void doit(){
     typedef typename EType::result_type rtype;
     typedef typename BType::ctr_type ctype;
     typedef typename BType::key_type ktype;
-    typedef typename BType::ukey_type uktype;
 
     DummySeedSeq dummyss;
     EType ess(dummyss);
