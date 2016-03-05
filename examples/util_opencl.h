@@ -61,6 +61,7 @@ typedef struct ucl_info {
 	version[UCL_STRSIZE], driver[UCL_STRSIZE];
     int computeflags;
     cl_device_fp_config fpdbl;
+    cl_device_type devtype;
 } UCLInfo;
 
 /* Miscellaneous checking macros for convenience */
@@ -116,6 +117,16 @@ static char *print_cl_errstring(cl_int err) {
     }
 } 
 
+static const char *cldevtypestr(cl_device_type c) {
+    switch (c) {
+    case CL_DEVICE_TYPE_CPU: return "CPU";
+    case CL_DEVICE_TYPE_GPU: return "GPU";
+    case CL_DEVICE_TYPE_ACCELERATOR: return "ACCELERATOR";
+    case CL_DEVICE_TYPE_DEFAULT: return "DEFAULT";
+    default: return "UNKNOWN";
+    }
+}
+
 #define CHECKERR(x) do { \
     (x); \
     if (err != CL_SUCCESS) { \
@@ -138,7 +149,7 @@ static UCLInfo *opencl_init(const char *devstr, const char *src,
     cl_platform_id platforms[UCL_MAX_PLATFORMS];
     cl_uint nplatforms, ndevices;
     cl_device_id devices[UCL_MAX_DEVICES];
-    const char *srcstr[1], *clbinfile;
+    const char *srcstr[2], *clbinfile;
     unsigned i, j;
     int cores, devcores;
 
@@ -181,6 +192,8 @@ static UCLInfo *opencl_init(const char *devstr, const char *src,
 				  sizeof uc.wgsize, &uc.wgsize, 0));
 	    CHECK(clGetDeviceInfo(devices[j], CL_DEVICE_DOUBLE_FP_CONFIG,
 				  sizeof uc.fpdbl, &uc.fpdbl, 0));
+	    CHECK(clGetDeviceInfo(devices[j], CL_DEVICE_TYPE,
+				  sizeof uc.devtype, &uc.devtype, 0));
 	    uc.computeflags = 0;
 #ifdef CL_DEVICE_COMPUTE_CAPABILITY_MAJOR_NV
 	    {
@@ -212,7 +225,9 @@ static UCLInfo *opencl_init(const char *devstr, const char *src,
 		cores *= 16*4;
 	    } else if (strcmp("Cypress", uc.devname) == 0) {
 		cores *= 16*5;
-	    } else if (strstr(uc.devname, "GTX 680")) {
+	    } else if (strstr(uc.devname, "GTX 6") ||
+		       strstr(uc.devname, "GTX 7") ||
+		       strstr(uc.devname, "GTX TITAN")) {
 		/* Kepler has 192 cores per SMX */
 		cores *= 192;
 	    } else if (strstr(uc.devname, "GTX 580") ||
@@ -224,7 +239,8 @@ static UCLInfo *opencl_init(const char *devstr, const char *src,
 		 * computeflags to figure this out?
 		 */
 		cores *= 32;
-
+	    } else if (uc.devtype == CL_DEVICE_TYPE_GPU) {
+		fprintf(stderr, "Unknown # of cores per unit for this device, assuming 1, so cpb may be wrong\n");
 	    }
 	    /* clkfreq is in Megahertz! */
 	    uc.cycles = 1e6 * uc.clkfreq * cores;
@@ -257,8 +273,8 @@ static UCLInfo *opencl_init(const char *devstr, const char *src,
     if (tp->wgsize > 2) {
 	tp->wgsize /= 2;
     }
-    printf("device 0x%lx %s : %d units %d cores %.2f Gcycles/s %lu maxwg\n",
-	     (unsigned long)tp->devid, tp->devname, tp->compunits, devcores, tp->cycles*1e-9, tp->wgsize);
+    printf("device 0x%lx %s : %d units %d cores %.2f Gcycles/s %lu maxwg %s device\n",
+	     (unsigned long)tp->devid, tp->devname, tp->compunits, devcores, tp->cycles*1e-9, tp->wgsize, cldevtypestr(tp->devtype));
     CHECKERR(tp->ctx = clCreateContext(ctxprop, 1, &tp->devid, 0, 0, &err));
     dprintf(("create OpenCL context for device 0x%lx %s\n", (unsigned long)tp->devid, tp->devname));
     CHECKERR(tp->cmdq = clCreateCommandQueue(tp->ctx, tp->devid, 0, &err));

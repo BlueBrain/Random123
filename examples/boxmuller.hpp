@@ -77,6 +77,11 @@ typedef ::float2 float2;
 typedef ::double2 double2;
 #endif
 
+#if !defined(R123_NO_SINCOS) && defined(__APPLE__)
+/* MacOS X 10.10.5 (2015) doesn't have sincosf */
+#define R123_NO_SINCOS 1
+#endif
+
 #if R123_NO_SINCOS /* enable this if sincos and sincosf are not in the math library */
 R123_CUDA_DEVICE R123_STATIC_INLINE void sincosf(float x, float *s, float *c) {
     *s = sinf(x);

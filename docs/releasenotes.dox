@@ -1,6 +1,15 @@
 /**
 @page "Release Notes"
 <dl>
+<dt>1.09 - Mar 6, 2016 </dt>
+<dd><ul>
+<li> add #define R123_USE_U01_DOUBLE to u10fixedpt.h
+<li> fix definition of const char *srcstr[] in util_opencl.h
+<li> improve nvccfeatures.h so that 64-bit philox can be used
+both on the host and on the cuda device.
+<li> add _Pragmas so R123_STATIC_ASSERT doesn't warn with clang-3.6.
+<li> boxmuller.hpp doesn't look for sincos when __APPLE__ is true.
+</ul></dd>
 <dt>1.08 - Aug 20, 2013 </dt>
 <dd><ul>
 <li> Fix a bug in threefry2xW whereby rotation constants were

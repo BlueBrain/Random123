@@ -125,6 +125,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /** @endcond */
 
+#ifndef R123_USE_U01_DOUBLE
+#define R123_USE_U01_DOUBLE
+#endif
+
 #ifdef __cplusplus
 extern "C"{
 #endif

@@ -306,15 +306,15 @@ code that has been ported.
 We have tested the Random123 library with the following infrastructure
 
 <ul>
-<li>Linux, gcc (multiple versions from 3.4.3 through 4.8.1), on x86_64.
-<li>Linux, clang-2.9, 3.0, 3.1 and 3.3 on x86_64.
+<li>Linux, gcc (multiple versions from 3.4.3 through 5.2), on x86_64.
+<li>Linux, clang-2.9, 3.0, 3.1, 3.3 and 3.6 on x86_64.
 <li>Linux, clang-3.0 and 3.1 with lib++ (2012-04-19 svn checkout) on x86_64.
 <li>Linux, open64-4.2.4 on x86_64.
 <li>Linux, Intel icc and icpc 12.0.2 on x86_64.
 <li>Linux, OpenCL (NVIDIA SDK 4.0.17) on GTX480, M2090, GTX580 and GTX680 GPUs.
 <li>Linux, OpenCL (AMD APP SDK 2.4 or 2.5), on x86_64 CPUs and Radeon HD6970 GPUs.
 <li>Linux, OpenCL (Intel OpenCL 1.5), on x86_64 CPUs.
-<li>Linux, NVIDIA CUDA 4.1.15, 4.2.6 and 5.5.22.  (NOTE: We recommend against the use of CUDA before 4.1)
+<li>Linux, NVIDIA CUDA 4.1.15, 4.2.6, 5.5.22 and 7.5.1.  (NOTE: We recommend against the use of CUDA before 4.1)
 <li>Linux, gcc-4.1.2 and 4.4.1 on x86.
 <li>Solaris, both gcc-3.4.3 and Sun C/C++ 5.8, on x86_64.
 <li>FreeBSD 8.2, gcc-4.2.1, on x86_64.
@@ -331,12 +331,26 @@ Others have reported success on
 <li>Linux, IBM xlc on Powerpc64 (BlueGene/Q)
 </ul>
 
+\section warnings Warnings
+
+With some compilation options, the CUDA nvcc compiler warns about
+unreachable code in array.h.  The compiler doesn't recognize that the
+code that is unreachable for some values of some macro parameters, is
+actually reachable for other values of the parameters.  It is possible
+to disable that particular warning for a specific compilation unit by
+adding -Wcudafe&nbsp;--diag_suppress=111 to the compilation command
+line.
+
+\section contributors Contributors
+
 We welcome feedback to random123@deshawresearch.com about ports to other environments.
 
 We are grateful for contributions from the following users:
 <ul>
 <li> Geoffrey Irving and Gabriel Rockefeller - BlueGene/Q and powerpc ports
 <li> Yan Zhou - MacOS and clang ports
+<li> David Lawrie - allowing 64-bit philox to compile for both host and device with CUDA
+<li> Bogdan Opanchuk - pointing out the inconsistent rotation constants in the implementation of threefry2xW in version 1.07 and earlier.
 </ul>
 */
 

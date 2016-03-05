@@ -1,5 +1,5 @@
 /*
-Copyright 2010-2011, D. E. Shaw Research.
+Copyright 2010-2016, D. E. Shaw Research.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -118,25 +118,25 @@ int main(int, char **){
     bool caught;
     caught = false;
     try{
-        One < AnotherOne;
+        (void)(One < AnotherOne);
     }catch(std::runtime_error& ){ caught = true; }
     assert(caught);
 
     caught = false;
     try{
-        One <= AnotherOne;
+        (void)(One <= AnotherOne);
     }catch(std::runtime_error& ){ caught = true; }
     assert(caught);
 
     caught = false;
     try{
-        One > AnotherOne;
+        (void)(One > AnotherOne);
     }catch(std::runtime_error& ){ caught = true; }
     assert(caught);
 
     caught = false;
     try{
-        One >= AnotherOne;
+        (void)(One >= AnotherOne);
     }catch(std::runtime_error& ){ caught = true; }
     assert(caught);
 

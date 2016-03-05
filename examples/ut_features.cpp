@@ -1,5 +1,5 @@
 /*
-Copyright 2010-2011, D. E. Shaw Research.
+Copyright 2010-2016, D. E. Shaw Research.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -295,12 +295,16 @@ Ofalse(R123_USE_GNU_UINT128);
 #endif
 #if R123_USE_ASM_GNU
 Otrue(R123_USE_ASM_GNU);
-R123_STATIC_INLINE int anotherAESNI(){
+#if defined(__x86_64__) || defined(__i386__)
+int use_gnu_asm(){
     unsigned int eax, ebx, ecx, edx;
     __asm__ __volatile__ ("cpuid": "=a" (eax), "=b" (ebx), "=c" (ecx), "=d" (edx) :
                       "a" (1));
     return (ecx>>25) & 1;
 }
+#else
+int use_gnu_asm(){ return 0; }
+#endif
 #else
 Ofalse(R123_USE_ASM_GNU);
 #endif

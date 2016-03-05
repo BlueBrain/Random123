@@ -132,7 +132,7 @@ R123_CONSTEXPR R123_STATIC_INLINE T maxTvalue(){
 //   a W-bit unsigned integer, multiplied by Ftype(2^-W) and added to
 //   Ftype(2^(-W-1)).  A good compiler should optimize it down to an
 //   int-to-float conversion followed by a multiply and an add, which
-//   might be fused, dependingon the architecture.
+//   might be fused, depending on the architecture.
 //
 //  If the input is a uniformly distributed integer, then the
 //  result is a uniformly distributed floating point number in [0, 1].
@@ -183,7 +183,7 @@ R123_CUDA_DEVICE R123_STATIC_INLINE Ftype uneg11(Itype in){
 //   W = width of Itype, e.g., 32 or 64, regardless of signedness.
 //   M = mantissa bits of Ftype, e.g., 24, 53 or 64
 //   B = min(M, W)
-// Then the 2^B-1 possible output values are:
+// Then the 2^(B-1) possible output values are:
 //    2^-B*{1, 3, 5, ..., 2^B - 1}
 // The smallest output is: 2^-B
 // The largest output is:  1 - 2^-B
