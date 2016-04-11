@@ -106,10 +106,10 @@ void *thread_run_##NAME##N##x##W##_##R(void *p) \
     /* store our thread id for use by get_global_info */ \
     tip->tid = pthread_self(); \
     tip->started = 1; \
-    test_##NAME##N##x##W##_##R(tp->kcount, tp->ukey, tp->ctr, tp->octrs); \
+    test_##NAME##N##x##W##_##R(tp->kcount, tp->ctr, tp->ukey, tp->octrs); \
     return tp; \
 }\
-void NAME##N##x##W##_##R(NAME##N##x##W##_ukey_t ukey, NAME##N##x##W##_ctr_t ctr, NAME##N##x##W##_ctr_t kactr, uint count, CPUInfo *tp) \
+void NAME##N##x##W##_##R(NAME##N##x##W##_ctr_t ctr, NAME##N##x##W##_ukey_t ukey, NAME##N##x##W##_ctr_t kactr, uint count, CPUInfo *tp) \
 { \
     const char *kernelname = #NAME #N "x" #W "_" #R; \
     double cur_time; \
@@ -234,6 +234,11 @@ int main(int argc, char **argv)
         sec_per_trial = atof(cp);
     }
     infop = cpu_init(argc > 2 ? argv[2] : NULL);
+    if (infop->ncores == 0) {
+	fprintf(stderr, "cannot autodetect number of cores, please set via 2nd cmdline arg ( 1st arg can be %u )\n",
+		count);
+	exit(1);
+    }
 #   include "time_initkeyctr.h"
     cpu_done(infop);
     return 0;

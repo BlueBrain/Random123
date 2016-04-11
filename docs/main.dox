@@ -189,6 +189,12 @@ allocation accordingly.
 The  
 pi_cuda.cu and pi_cudapp.cu examples illustrate the use of CUDA.
 
+In a machine with different GPUs, the
+R123EXAMPLE_ENVCONF_CUDA_DEVICE environment variable can be set
+to a unique substring of the CUDA GPU device name to select a
+specific GPU (else examples try to choose the GPU with the most
+cores)
+
 \section opencl The OpenCL platform
 
 The functions in the Random123 C API can all be used in
@@ -198,6 +204,12 @@ As with CUDA, the Nx32 forms are faster than the Nx64 variants on current (2011)
 
 The pi_opencl.c and pi_opencl_kernel.ocl examples illustrate the use
 of OpenCL.
+
+In a machine with different OpenCL devices, the
+R123EXAMPLE_ENVCONF_OPENCL_DEVICE environment variable can be
+set to a unique substring of the OpenCL device name to select a
+specific OpenCL device (else examples try to choose the device
+with the most cores)
 
 \section cplusplus0x C++0X \<random\> interface
 
@@ -290,7 +302,11 @@ should be run to ensure that these RNGs build correctly on desired platforms.
 These help to provide assurance that the code is being compiled correctly.
 <li> Complete, short programs estimate pi by counting the number of random
 points that fall inside a circle inscribed in a square, demonstrating
-the C, C++, AES, GSL, OpenCL, CUDA and C++0x APIs.
+the C, C++, AES, GSL, OpenCL, CUDA and C++0x APIs.  The environment
+variable R123EXAMPLE_ENVCONF_SEED can be set to any unsigned integer value to run
+the example with a different seed.  Many of the pi_* examples run different
+numbers of iterations if that number is specified as the first argument
+on the command line.
 <li> Header files, including uniform.hpp, ufixed01.h, ua.hpp, and boxmuller.hpp containing code that
 users may find useful but that are outside the scope of the Random123 library itself.
 <li> Some highly abstracted timing harnesses are provided
@@ -307,19 +323,20 @@ We have tested the Random123 library with the following infrastructure
 
 <ul>
 <li>Linux, gcc (multiple versions from 3.4.3 through 5.2), on x86_64.
+<li>Linux, gcc-4.1.2 and 4.4.1 on i686.
+<li>Linux, gcc-4.8 on ARMv7 (32bit) Freescale/NXP LS1021A & ARM A53 (64bit) Freescale/NXP 1043A.
 <li>Linux, clang-2.9, 3.0, 3.1, 3.3 and 3.6 on x86_64.
 <li>Linux, clang-3.0 and 3.1 with lib++ (2012-04-19 svn checkout) on x86_64.
 <li>Linux, open64-4.2.4 on x86_64.
 <li>Linux, Intel icc and icpc 12.0.2 on x86_64.
+<li>Linux, NVIDIA CUDA 4.1.15, 4.2.6, 5.5.22 and 7.5.1.  (NOTE: We recommend against the use of CUDA before 4.1)
 <li>Linux, OpenCL (NVIDIA SDK 4.0.17) on GTX480, M2090, GTX580 and GTX680 GPUs.
 <li>Linux, OpenCL (AMD APP SDK 2.4 or 2.5), on x86_64 CPUs and Radeon HD6970 GPUs.
 <li>Linux, OpenCL (Intel OpenCL 1.5), on x86_64 CPUs.
-<li>Linux, NVIDIA CUDA 4.1.15, 4.2.6, 5.5.22 and 7.5.1.  (NOTE: We recommend against the use of CUDA before 4.1)
-<li>Linux, gcc-4.1.2 and 4.4.1 on x86.
 <li>Solaris, both gcc-3.4.3 and Sun C/C++ 5.8, on x86_64.
 <li>FreeBSD 8.2, gcc-4.2.1, on x86_64.
-<li>MacOS X 5.8, gcc-4.0.1, on x86.
-<li>MacOS X 5.8, llvm-2.9.1 on x86 (problems with catching C++ exceptions).
+<li>MacOS X 5.8, gcc-4.0.1, on i686.
+<li>MacOS X 5.8, llvm-2.9.1 on i686 (problems with catching C++ exceptions).
 <li>Windows 7, Microsoft Visual Studio, version 10.0, Microsoft C/C++ compiler 16.00.
 </ul>
 
@@ -341,9 +358,20 @@ to disable that particular warning for a specific compilation unit by
 adding -Wcudafe&nbsp;--diag_suppress=111 to the compilation command
 line.
 
+On our ARMv7 test platform, we suspect a compiler bug with -O3,
+which does not seem to affect Random123 code itself, but
+produces nondeterministic results from time_serial.  The
+offending compiler version was
+"aarch64-fsl-linux-gcc&nbsp;(Linaro&nbsp;GCC&nbsp;4.8-2014.04)&nbsp;4.8.3&nbsp;20140401&nbsp;(prerelease)".
+We slightly reordered a couple of innocuous statements (a
+timer() and dprintf() call) in time_serial to avoid the bug, but
+we would avoid -O3 on ARMv7 with that particular version of the
+compiler at least.
+
 \section contributors Contributors
 
-We welcome feedback to random123@deshawresearch.com about ports to other environments.
+We welcome bug reports, new ports, success stories or any
+feedback to random123@deshawresearch.com
 
 We are grateful for contributions from the following users:
 <ul>

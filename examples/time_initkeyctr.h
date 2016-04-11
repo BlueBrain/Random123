@@ -32,6 +32,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TIME_INITKEYCTR_H__
 #define TIME_INITKEYCTR_H__ 1
 
+/*
+ * EXAMPLE_KEY* and EXAMPLE_CTR* values are just arbitrary numbers
+ * with some bits set, they have no special importance, they do
+ * not even have to be different.  If they are changed, then the
+ * good_* values further below will need to be updated to match.
+ */
+
+#define EXAMPLE_KEY0 0xdeadbeefU
+#define EXAMPLE_KEY1 0x12345678U
+#define EXAMPLE_KEY2 0xc0debad1U
+#define EXAMPLE_KEY3 0x31415926U
+
+#define EXAMPLE_CTR0 0x00000000U
+#define EXAMPLE_CTR1 0x10000000U
+#define EXAMPLE_CTR2 0x20000000U
+#define EXAMPLE_CTR3 0x30000000U
+
+/*
+ * The magic hex numbers below are just known good values that
+ * result from the arbitrary EXAMPLE* inputs above.  We check that
+ * we got these results at the end of timing tests to ensure that
+ * we didn't accidentally let a compiler optimize away some loop.
+ */
 #if TRY_OTHER
 static mrg1x32_ctr_t good_mrg1x32_1 = {{0x4b2cd7ee}};
 static mt1x32_ctr_t good_mt1x32_1 = {{0x39037a7d}};
@@ -62,11 +85,15 @@ static aesni4x32_ctr_t good_aesni4x32_10 = {{0x1e68c9fd, 0x347b0858, 0x503d8d91,
 #endif
 
 /*
- * Initializes a ukey and counter to known values with a known
- * offset and calls the test function with that ukey, ctr and a
- * count and closure.  keyctroffset should be a variable
- * initialized from the environment to avoid compiler
- * optimization from known constants (after inlining).
+ * template code initializes a ukey and counter to known values
+ * with a known offset and calls a Random123 test function with
+ * that ukey, ctr and a count and closure.  keyctroffset is be
+ * a variable initialized from runtime environment (e.g. argv, argc,
+ * getenv(), etc) to avoid compile-time optimization
+ * caused by constants, so we get worst-case numbers.  Users may,
+ * of course, benefit from compile-time optimization if they
+ * have some constants for key or ctr values.
+ * 
  */
 #define TEST_TPL(NAME, N, W, R) \
 if ((strncmp(#NAME, "aes", 3) == 0 || strncmp(#NAME, "ars", 3) == 0) && !haveAESNI()) { \
@@ -77,23 +104,25 @@ if ((strncmp(#NAME, "aes", 3) == 0 || strncmp(#NAME, "ars", 3) == 0) && !haveAES
     size_t xi; \
     for (xi = 0; xi < sizeof(ukey)/sizeof(ukey.v[0]); xi++) { \
 	switch (xi) { \
-	    case 0: ukey.v[xi] = 0xdeadbeef+keyctroffset; break; \
-	    case 1: ukey.v[xi] = 0x12345678+keyctroffset; break; \
-	    case 2: ukey.v[xi] = 0xc0debad1+keyctroffset; break; \
-	    case 3: ukey.v[xi] = 0x31415926+keyctroffset; break; \
+	    case 0: ukey.v[xi] = EXAMPLE_KEY0+keyctroffset; break; \
+	    case 1: ukey.v[xi] = EXAMPLE_KEY1+keyctroffset; break; \
+	    case 2: ukey.v[xi] = EXAMPLE_KEY2+keyctroffset; break; \
+	    case 3: ukey.v[xi] = EXAMPLE_KEY3+keyctroffset; break; \
 	} \
     } \
     for (xi = 0; xi < N; xi++) { \
 	switch (xi) { \
-	    case 0: ctr.v[xi] = 0x00000000+keyctroffset; break; \
-	    case 1: ctr.v[xi] = 0x10000000+keyctroffset; break; \
-	    case 2: ctr.v[xi] = 0x20000000+keyctroffset; break; \
-	    case 3: ctr.v[xi] = 0x30000000+keyctroffset; break; \
+	    case 0: ctr.v[xi] = EXAMPLE_CTR0+keyctroffset; break; \
+	    case 1: ctr.v[xi] = EXAMPLE_CTR1+keyctroffset; break; \
+	    case 2: ctr.v[xi] = EXAMPLE_CTR2+keyctroffset; break; \
+	    case 3: ctr.v[xi] = EXAMPLE_CTR3+keyctroffset; break; \
 	} \
     } \
-    NAME##N##x##W##_##R(ukey, ctr, good_##NAME##N##x##W##_##R, count, infop); \
+    NAME##N##x##W##_##R(ctr, ukey, good_##NAME##N##x##W##_##R, count, infop); \
 }
 
 #include "util_expandtpl.h"
 
 #endif /* TIME_INITKEYCTR_H__ */
+
+

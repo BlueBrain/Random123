@@ -172,7 +172,7 @@ int main(int argc, char **argv){
     for (int i = 0; i < (int)(sizeof(keyd)/sizeof(keyd[0])-1) && 2+i < argc; i++) {
 	keyd.v[i] = atol(argv[2+i]);
     }
-    CUDAInfo *infop = cuda_init(getenv("R123_CUDA_DEVICE"));
+    CUDAInfo *infop = cuda_init(NULL);
     timedcall<CBRNGF,float,r123::float2>("float", cp, infop, keyf, Ntry);
     timedcall<CBRNGD,double,r123::double2>("double",cp, infop, keyd, Ntry);
     cuda_done(infop);

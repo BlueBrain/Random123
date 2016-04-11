@@ -36,6 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Compute pi, using the u01 conversion with threefry2x64 and threefry2x32 */
 
 #include "pi_check.h"
+#include "example_seeds.h"
 
 using namespace r123;
 
@@ -44,13 +45,14 @@ void pi(typename CBRNG::key_type k);
 
 int errs = 0;
 int main(int, char **){
+    uint64_t seed64 = example_seed_u64(EXAMPLE_SEED1_U64); // example user-settable seed
     unsigned long hits = 0, tries = 0;
 
     // First, we demonstrate how to compute pi
     // using uneg11 to convert the integer output
     // of threefry2x64 to a double in (-1, 1).
     Threefry2x64::ctr_type c = {{0}}, r;
-    Threefry2x64::ukey_type uk = {{R123_64BIT(0xdeadbeef12345678)}};
+    Threefry2x64::ukey_type uk = {{seed64}};
     Threefry2x64::key_type k = uk;
     printf("%lu uniform doubles from threefry2x64\n", NTRIES);
     while (tries < NTRIES) {
@@ -72,8 +74,9 @@ int main(int, char **){
     pi<float, Threefry2x64>(k);
     pi<double, Threefry2x64>(k);
     pi<long double, Threefry2x64>(k);
+    uint32_t seed32 = example_seed_u32(EXAMPLE_SEED9_U32);
 
-    Threefry2x32::ukey_type ukh = {{0xdecafbad}};
+    Threefry2x32::ukey_type ukh = {{seed32}};
     Threefry2x32::key_type kh = ukh;
     pi<float, Threefry2x32>(kh);
     pi<double, Threefry2x32>(kh);

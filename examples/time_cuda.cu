@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "time_random123.h"
 
 #define TEST_TPL(NAME, N, W, R) \
-void NAME##N##x##W##_##R(NAME##N##x##W##_ukey_t ukey, NAME##N##x##W##_ctr_t ctr, NAME##N##x##W##_ctr_t kactr, uint count, CUDAInfo *tp) \
+void NAME##N##x##W##_##R(NAME##N##x##W##_ctr_t ctr, NAME##N##x##W##_ukey_t ukey, NAME##N##x##W##_ctr_t kactr, uint count, CUDAInfo *tp) \
 { \
     const char *kernelname = PREFIX #NAME #N "x" #W "_" #R; \
     NAME##N##x##W##_ctr_t *hC, *dC; \
@@ -113,7 +113,7 @@ void NAME##N##x##W##_##R(NAME##N##x##W##_ukey_t ukey, NAME##N##x##W##_ctr_t ctr,
 	} \
 	dprintf(("launch %s\n", kernelname)); \
 	(void)timer(&cur_time); \
-	test_##NAME##N##x##W##_##R<<<tp->blocks_per_grid, tp->threads_per_block>>>(kcount, ukey, ctr, dC); \
+	test_##NAME##N##x##W##_##R<<<tp->blocks_per_grid, tp->threads_per_block>>>(kcount, ctr, ukey, dC); \
 	dprintf(("synchronize\n")); \
 	CHECKCALL(cudaThreadSynchronize()); \
 	dprintf(("copy results back from device to host\n")); \

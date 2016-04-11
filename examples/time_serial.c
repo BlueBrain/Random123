@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "time_random123.h"
 
 #define TEST_TPL(NAME, N, W, R) \
-void NAME##N##x##W##_##R(NAME##N##x##W##_ukey_t ukey, NAME##N##x##W##_ctr_t ctr, NAME##N##x##W##_ctr_t kactr, uint count, CPUInfo *tp) \
+void NAME##N##x##W##_##R(NAME##N##x##W##_ctr_t ctr, NAME##N##x##W##_ukey_t ukey, NAME##N##x##W##_ctr_t kactr, uint count, CPUInfo *tp) \
 { \
     const char *kernelname = #NAME #N "x" #W "_" #R; \
     double cur_time; \
@@ -97,9 +97,10 @@ void NAME##N##x##W##_##R(NAME##N##x##W##_ukey_t ukey, NAME##N##x##W##_ctr_t ctr,
 	    } \
 	    kcount = count + 1; \
 	} \
-	dprintf(("call function %s\n", kernelname)); \
+	/* calling timer *before* dprintf avoids an ARMv7 gcc 4.8.3 -O3 compiler bug! */ \
 	(void)timer(&cur_time); \
-	test_##NAME##N##x##W##_##R(kcount, ukey, ctr, hC); \
+	dprintf(("call function %s\n", kernelname)); \
+	test_##NAME##N##x##W##_##R(kcount, ctr, ukey, hC); \
 	dt = timer(&cur_time); \
 	dprintf(("iteration %d took %.3f secs\n", n, dt)); \
 	ALLZEROS(hC, 1, N); \

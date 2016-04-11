@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "util_print.h"
 
 #define TEST_TPL(NAME, N, W, R) \
-void NAME##N##x##W##_##R(NAME##N##x##W##_ukey_t ukey, NAME##N##x##W##_ctr_t ctr, NAME##N##x##W##_ctr_t kactr, uint count, UCLInfo *tp) \
+void NAME##N##x##W##_##R(NAME##N##x##W##_ctr_t ctr, NAME##N##x##W##_ukey_t ukey, NAME##N##x##W##_ctr_t kactr, uint count, UCLInfo *tp) \
 { \
     const char *kernelname = PREFIX #NAME #N "x" #W "_" #R; \
     NAME##N##x##W##_ctr_t *hC; \
@@ -72,8 +72,7 @@ void NAME##N##x##W##_##R(NAME##N##x##W##_ukey_t ukey, NAME##N##x##W##_ctr_t ctr,
     } \
     /* allocate vector of counters in device memory, initialize from current host memory */ \
     CHECKERR(dC = clCreateBuffer(tp->ctx, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, szC, hC, &err)); \
-    /* see comment in time_random123.h for why this is cl_ulong */ \
-    cl_ulong kcount = 0;                                                    \
+    cl_uint kcount = 0;                                                    \
     double basetime = 0., dt = 0., mindt = 0.; \
     /* first two iterations are for warmup & baseline */ \
     for (n = -2; n < niterations; n++) { \
@@ -121,9 +120,9 @@ void NAME##N##x##W##_##R(NAME##N##x##W##_ukey_t ukey, NAME##N##x##W##_ctr_t ctr,
 	narg = 0; \
 	CHECK(clSetKernelArg(kern, narg, sizeof(kcount), (void *)&kcount)); \
 	narg++; \
-	CHECK(clSetKernelArg(kern, narg, sizeof(ukey), (void *)&ukey)); \
-	narg++; \
 	CHECK(clSetKernelArg(kern, narg, sizeof(ctr), (void *)&ctr)); \
+	narg++; \
+	CHECK(clSetKernelArg(kern, narg, sizeof(ukey), (void *)&ukey)); \
 	narg++; \
 	CHECK(clSetKernelArg(kern, narg, sizeof(cl_mem), (void *)&dC)); \
 	dprintf(("queue kernel for execution on device %s\n", tp->devname)); \

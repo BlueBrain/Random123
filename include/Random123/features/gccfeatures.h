@@ -34,8 +34,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define R123_GNUC_VERSION (__GNUC__*10000 + __GNUC_MINOR__*100 + __GNUC_PATCHLEVEL__)
 
-#if !defined(__x86_64__) && !defined(__i386__) && !defined(__powerpc__)
-#  error "This code has only been tested on x86 and powerpc platforms."
+#if !defined(__x86_64__) && !defined(__i386__) && !defined(__powerpc__) && !defined(__arm__) && !defined(__aarch64__)
+#  error "This code has only been tested on x86, powerpc and a few arm platforms."
 #include <including_a_nonexistent_file_will_stop_some_compilers_from_continuing_with_a_hopeless_task>
 { /* maybe an unbalanced brace will terminate the compilation */
  /* Feel free to try the Random123 library on other architectures by changing
@@ -150,7 +150,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #ifndef R123_USE_GNU_UINT128
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(__aarch64__)
 #define R123_USE_GNU_UINT128 1
 #else
 #define R123_USE_GNU_UINT128 0

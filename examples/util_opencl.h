@@ -153,6 +153,9 @@ static UCLInfo *opencl_init(const char *devstr, const char *src,
     unsigned i, j;
     int cores, devcores;
 
+    if (devstr == NULL)
+	devstr = getenv("R123EXAMPLE_ENVCONF_OPENCL_DEVICE");
+	
     /* get list of platforms */
     CHECK(clGetPlatformIDs(0, NULL, &nplatforms));
     dprintf(("nplatforms = %d\n", nplatforms));
@@ -225,8 +228,13 @@ static UCLInfo *opencl_init(const char *devstr, const char *src,
 		cores *= 16*4;
 	    } else if (strcmp("Cypress", uc.devname) == 0) {
 		cores *= 16*5;
+	    } else if (strstr(uc.devname, "GTX TITAN X") ||
+		       strstr(uc.devname, "GTX 9")) {
+		cores *= 128;
 	    } else if (strstr(uc.devname, "GTX 6") ||
 		       strstr(uc.devname, "GTX 7") ||
+		       strstr(uc.devname, "Tesla K2") ||
+		       strstr(uc.devname, "Tesla K4") ||
 		       strstr(uc.devname, "GTX TITAN")) {
 		/* Kepler has 192 cores per SMX */
 		cores *= 192;
@@ -240,7 +248,10 @@ static UCLInfo *opencl_init(const char *devstr, const char *src,
 		 */
 		cores *= 32;
 	    } else if (uc.devtype == CL_DEVICE_TYPE_GPU) {
-		fprintf(stderr, "Unknown # of cores per unit for this device, assuming 1, so cpb may be wrong\n");
+		int coresmultguess = 384;
+		cores *= coresmultguess;
+		fprintf(stderr, "Unknown # of cores per unit for this device \"%s\", assuming %d, so cpb may be wrong and choice of threads may be suboptimal\n",
+			uc.devname, coresmultguess);
 	    }
 	    /* clkfreq is in Megahertz! */
 	    uc.cycles = 1e6 * uc.clkfreq * cores;

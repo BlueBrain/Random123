@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // functions to do boilerplate OpenCL begin and end
 #include "util_opencl.h"
 #include "pi_check.h"
+#include "example_seeds.h"
 
 // Include preprocessed kernel declaration for the array src 
 // The GNUmakefile will create pi_opencl_kernel.i in the build
@@ -48,6 +49,7 @@ int debug = 0;
 int
 main(int argc, char **argv)
 {
+    unsigned seed = example_seed_u32(EXAMPLE_SEED9_U32); // example user-settable seed
     unsigned count = argc > 1 ? atoi(argv[1]) : 0;
     UCLInfo *infop;
     size_t i, nthreads, hits_sz;
@@ -70,10 +72,11 @@ main(int argc, char **argv)
     hits_sz = nthreads * sizeof(hits_host[0]);
     CHECKNOTZERO(hits_host = (cl_uint2 *)malloc(hits_sz));
     CHECKERR(hits_dev = clCreateBuffer(infop->ctx, CL_MEM_WRITE_ONLY, hits_sz, 0, &err));
-    CHECK(clSetKernelArg(kern, 0, sizeof(cl_uint), (void*)&count));
-    CHECK(clSetKernelArg(kern, 1, sizeof(cl_mem), (void*)&hits_dev));
-    printf("queuing kernel for %lu threads with %lu work group size, %u points\n",
-	   (unsigned long)nthreads, (unsigned long)infop->wgsize, count);
+    CHECK(clSetKernelArg(kern, 0, sizeof(unsigned), (void*)&count));
+    CHECK(clSetKernelArg(kern, 1, sizeof(unsigned), (void*)&seed));
+    CHECK(clSetKernelArg(kern, 2, sizeof(cl_mem), (void*)&hits_dev));
+    printf("queuing kernel for %lu threads with %lu work group size, %u points with seed 0x%x\n",
+	   (unsigned long)nthreads, (unsigned long)infop->wgsize, count, seed);
     CHECK(clEnqueueNDRangeKernel(infop->cmdq, kern, 1, 0, &nthreads, &infop->wgsize, 0, 0, 0));
     CHECK(clFinish(infop->cmdq));
     CHECK(clEnqueueReadBuffer(infop->cmdq, hits_dev, CL_TRUE, 0, hits_sz, hits_host, 0, 0, 0));

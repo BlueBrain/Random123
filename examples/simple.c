@@ -31,13 +31,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <Random123/threefry.h>
 #include <stdio.h>
+#include "example_seeds.h"
 
 int main(int argc, char **argv){
     int i;
+    uint64_t seed = example_seed_u64(EXAMPLE_SEED1_U64); // example of user-settable seed
+    
+    /* while this example starts the counter from 0 and then increments by 0,
+       this could start anywhere and increment by any stride or pattern that
+       makes sense for the application as long as it produces a non-repeating stream */
     threefry2x64_ctr_t  ctr = {{0,0}};
-    threefry2x64_key_t key = {{0xdeadbeef, 0xbadcafe}};
+    /* we illustrate one user-specified seed and one constant as the key */
+    threefry2x64_key_t key = {{seed, EXAMPLE_SEED2_U64}};
     (void)argc; (void)argv; /* unused */
-    printf( "The first few randoms with key %llx %llx\n",
+    printf( "The first few randoms with key 0x%llx 0x%llx\n",
 	   (unsigned long long)key.v[0], (unsigned long long)key.v[1]);
     for(i=0; i<10; ++i){
         ctr.v[0] = i;

@@ -56,11 +56,16 @@ static CUDAInfo *cuda_init(const char *devstr)
     CHECKNOTZERO(tp = (CUDAInfo *) malloc(sizeof(CUDAInfo)));
     CHECKCALL( cudaGetDeviceCount(&ndev) );
     devcores = 0;
+    if (devstr == NULL)
+	devstr = getenv("R123EXAMPLE_ENVCONF_CUDA_DEVICE");
     for (i = 0; i < ndev; i++) {
 	struct cudaDeviceProp cu;
 	CHECKCALL( cudaGetDeviceProperties (&cu, i) );
 	// Number of cores is not available from a query, have to hardwire
-	// some knowledge here!
+	// some knowledge here, from web articles about the various generations
+	// SM or SMX, might also find this info in
+	// CUDA SDK $CUDA_SAMPLES_DIR/common/inc/helper_cuda.h
+	// or https://github.com/NVIDIA/nvidia-docker/blob/master/tools/src/cuda/cuda.go
 	cores = cu.multiProcessorCount;
 	if (cu.major == 1 && cu.minor >= 0 && cu.minor <= 3) {
 	    // 1.0 (G80, G92, aka GTX880, Tesla [CSD]870) to 1.3 (GT200, aka GTX280, Tesla [CS]10xx) have 8 cores per MP
@@ -71,11 +76,16 @@ static CUDAInfo *cuda_init(const char *devstr)
 	} else if (cu.major == 2 && cu.minor == 1) {
 	    // 2.1 (GF104, GF114, GF116 aka GTX [45][56]0)
 	    cores *= 48;
-	} else if (cu.major == 3 && (cu.minor == 0||cu.minor==5)) {
-	    // 3.0 (Kepler GK104 aka GTX 680)
+	} else if (cu.major == 3) {
+	    // 3.0 (Kepler GK104 aka GTX 680), 3.2 (TK1), 3.5 (GK11x, GK20x), 3.7 (GK21x)
 	    cores *= 192;
+	} else if (cu.major == 5) {
+	    // 5.0 (Maxwell GM10x), 5.2 (GM20x), 5.3 (TX1)
+	    cores *= 128;
 	} else {
-	    fprintf(stderr, "Unknown # of cores per MP for this device, assuming 1, so cpb will be wrong\n");
+	    int coremultguess = 384;
+	    cores *= coremultguess;
+	    fprintf(stderr, "WARNING: Unknown number of cores per MP for this device: assuming %d, so cpb calculation will be wrong and choice of blocks/grid might be suboptimal\n", coremultguess);
 	}
 	/* clockrate is in KHz */
 	cycles = 1e3 * cu.clockRate * cores;
@@ -100,8 +110,8 @@ static CUDAInfo *cuda_init(const char *devstr)
     }
     tp->blocks_per_grid = tp->cores; /* seems like a good guess */
     tp->threads_per_block = tp->dev.warpSize * 2;
-    dprintf(("Using CUDA device %d, %d cores, %g cycles, will try %d blocks/grid %d threads/block\n",
-	     tp->devnum, tp->cores, tp->cycles, tp->blocks_per_grid, tp->threads_per_block));
+    printf("Using CUDA device %d, %d cores, %g cycles, will try %d blocks/grid %d threads/block\n",
+	   tp->devnum, tp->cores, tp->cycles, tp->blocks_per_grid, tp->threads_per_block);
     CHECKCALL(cudaSetDevice(tp->devnum));
     dprintf(("cuda_init done\n"));
     return tp;

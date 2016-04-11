@@ -46,9 +46,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Random123/philox.h>
 #include <Random123/threefry.h>
 
-#ifdef __OPENCL_VERSION__
+#if defined(__OPENCL_VERSION__)
 #define KERNEL __kernel
 #define MEMTYPE __global
+#define xprintf(x)
+#elif defined(__CUDA_ARCH__)
+#define xprintf(x)
+#else
+#define xprintf(x) printf x
 #endif
 
 #ifndef KERNEL
@@ -77,16 +82,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 /* Macro that will expand later into all the Random123 PRNGs for NxW_R */
-/* Note that making the first argument uint seems to expose some
-   argument marshalling bugs in version 2.4 of the AMDAPPSDK.  Passing
-   a 64-bit (ulong) seems to fix things, but since we know the value
-   fits in 32 bits, we assign it to a 32-bit (uint) to reduce loop
-   overhead.
-*/
+/* XXX AMDAPPSDK 2.4 seemed unhappy with the first argument being uint,
+   but was ok when I changed it to uint64_t.  That slows things down
+   a little unless one creates a uint temporary so that the loop
+   comparison was quick. Better answer: use newer AMDAPPSDK. */
 #define TEST_TPL(NAME, N, W, R)                                         \
-KERNEL void test_##NAME##N##x##W##_##R(uint64_t n64, NAME##N##x##W##_ukey_t uk, NAME##N##x##W##_ctr_t ctrinit, MEMTYPE NAME##N##x##W##_ctr_t *ctr) \
+KERNEL void test_##NAME##N##x##W##_##R(uint n, NAME##N##x##W##_ctr_t ctrinit, NAME##N##x##W##_ukey_t uk, MEMTYPE NAME##N##x##W##_ctr_t *ctr) \
 {                                                                       \
-    uint n = (uint)n64;                                                 \
     unsigned tid = get_global_id(0);                                    \
     uint i;                                                             \
     NAME##N##x##W##_ctr_t c, v={{0}};                                   \
@@ -101,6 +103,8 @@ KERNEL void test_##NAME##N##x##W##_##R(uint64_t n64, NAME##N##x##W##_ukey_t uk, 
     }else {                                                             \
         for (i = 0; i < n; ++i) {                                       \
             v = NAME##N##x##W##_R(R, c, k);                             \
+	    /*xprintf(("1: %s k[0] %lx c[0] %lx v[0] %lx\n", #NAME #N "x" #W "_" #R, (unsigned long) k.v[0], (unsigned long) c.v[0], (unsigned long) v.v[0]));*/ \
+	    /*if (c.v[0] == 0) printline_##NAME##N##x##W##_##R(k, c, &v, 1);*/ \
 	    LOOK_AT(v, i, N);                                           \
             c.v[0]++;                                                   \
         }                                                               \
