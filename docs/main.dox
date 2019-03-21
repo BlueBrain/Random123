@@ -101,9 +101,9 @@ was unpacked from the distribution tar file and use the Random123
 header files, types and functions in your application.  
 
 In addition to the \c include/ files which implement the library the
-distribution also contains an \c examples/ directory.  Users are <b>
-STRONGLY ADVISED </b> to compile and run the tests in examples/ before using
-Random123 in an application (see <c> @ref ExamplesREADME "examples/README"</c>).
+distribution also contains an \c examples/ and a \c tests/ directory.  Users are <b>
+STRONGLY ADVISED </b> to compile and run the tests in tests/ before using
+Random123 in an application (see <c> @ref TestsREADME "tests/README"</c>).
 Do not use the library if any tests fail.  (It is not a failure for
 a test to report that it cannot run because of missing
 hardware capabilities like 64bit multiply,
@@ -211,25 +211,25 @@ set to a unique substring of the OpenCL device name to select a
 specific OpenCL device (else examples try to choose the device
 with the most cores)
 
-\section cplusplus0x C++0X \<random\> interface
+\section cplusplus0x C++11 \<random\> interface
 
 In addition to the stateless ("pure/functional") C++ API above,
 the Random123 package includes two C++ classes
-that leverage the C++0X \<random\> API.
+that leverage the C++11 \<random\> API.
 
 <ul>
 <li>r123::MicroURNG provides an adapter class that provides a
-more conventional interface compatible with the C++0X URNG
+more conventional interface compatible with the C++11 URNG
 (uniform random number generator) API; the MicroURNG adapter can
-be used with C++0x random number distributions and is
+be used with C++11 random number distributions and is
 fast/lightweight enough that a new MicroURNG can be instantiated
 with a unique key,counter tuple and used for each call to a
 distribution, there is little or no overhead to creating
 billions of unique MicroURNGs.  This adapter retains one of the
 key advantages of CBRNGs -- complete application control over
 the RNG state.
-<li>r123::Engine provides the C++0x Random Engine API.  This can
-also be used with any of the C++0X random distributions, but
+<li>r123::Engine provides the C++11 Random Engine API.  This can
+also be used with any of the C++11 random distributions, but
 sacrifices the application control over RNG state that is a
 defining characteristic of CBRNGs.
 </ul>
@@ -262,22 +262,16 @@ samples from arbitrary distributions is beyond the scope of the Random123
 library.  One can, of course, use GSL or MicroURNG and the
 distributions in the C++11 \<random\> library, but a few simple cases
 are common enough that all that extra machinery seems like overkill.
-We have included code in the examples/ directory which developers may
+We have included a few generic conversion utilities which developers may
 find useful.
 
 <ul>
-<li>    examples/uniform.hpp - C++ functions that convert random integers to
+<li>    uniform.hpp - C++ functions that convert random integers to
          random, uniformly distributed floating point values.
-<li>    examples/u01fixedpt.h - C functions that convert random integers to
+<li>    u01fixedpt.h - C functions that convert random integers to
          random, uniformly distributed, equi-spaced, i.e., fixed point,
          values.
-<li> examples/ua.hpp - C++11 functions that convert r123arrays of
-     uniformly distributed integers into std::arrays of uniformly
-     distributed floating point types.  The return type is std::array
-     because it is far easier, with template logic, to return a
-     std::array of the correct size than an r123array of the correct
-     size.
-<li>    examples/boxmuller.hpp - C++ functions that take two
+<li>    boxmuller.hpp - C++ functions that take two
          uniformly distributed integers (32 or 64 bit) and
          return a pair of Gaussian distributed floats or doubles.
 </ul>
@@ -292,24 +286,31 @@ method and hardware support for math functions overcomes the
 transcendental function overhead, making it the fastest generator of
 Gaussians that we are aware of.
 
-\subsection Examples Tests and Benchmarks
+\subsection examples Examples
 
-The @ref ExamplesREADME "examples/" directory, contains tests, examples and benchmarks.
+The @ref ExamplesREADME "examples/" directory, contains example code
+intended to illustrate use of the library.
 
-<ul>
-<li> Unit tests for individual components and "known-answer-tests", which
-should be run to ensure that these RNGs build correctly on desired platforms.
-These help to provide assurance that the code is being compiled correctly.
-<li> Complete, short programs estimate pi by counting the number of random
+Complete, short programs estimate pi by counting the number of random
 points that fall inside a circle inscribed in a square, demonstrating
-the C, C++, AES, GSL, OpenCL, CUDA and C++0x APIs.  The environment
+the C, C++, AES, GSL, OpenCL, CUDA and C++11 APIs.  The environment
 variable R123EXAMPLE_ENVCONF_SEED can be set to any unsigned integer value to run
 the example with a different seed.  Many of the pi_* examples run different
 numbers of iterations if that number is specified as the first argument
 on the command line.
-<li> Header files, including uniform.hpp, ufixed01.h, ua.hpp, and boxmuller.hpp containing code that
-users may find useful but that are outside the scope of the Random123 library itself.
-<li> Some highly abstracted timing harnesses are provided
+
+\subsection tests Tests and Benchmarks
+
+The @ref TestsREADME "tests/" directory contains tests and benchmarks.
+This code is complicated due to the fact that it is
+largely "single source" for CUDA, OpenCL and CPU implmentations.
+Developers are strongly discouraged from emulating its style.
+It contains:
+<ul>
+<li> Unit tests for individual components and "known-answer-tests", which
+should be run to ensure that these RNGs build correctly on desired platforms.
+These help to provide assurance that the code is being compiled correctly.
+<li> A variety of timing harnesses are provided
 which measure performance of a variety of generators in different
 programming environments.
 </ul>
@@ -319,14 +320,35 @@ programming environments.
 Although we have done our best to make Random123 portable and standards conforming,
 it is an unfortunate fact that there is no portable code.  There is only
 code that has been ported.
-We have tested the Random123 library with the following infrastructure
+
+Prior to release, we test Random123 on a variety of systems and with a
+variety of toolchains that are readily available to us.  Our
+current test environment includes:
 
 <ul>
-<li>Linux, gcc (multiple versions from 3.4.3 through 5.2), on x86_64.
+<li> Linux, gcc-5.2.0, 6.3.0, 8.1.0 using -march=native on Xeon hardware with
+     AES and SSE4_2 and AVX2 support.
+<li> Linux, gcc-5.2.0 using -m32.
+<li> Linux, clang-8.0.0 with libc++ (8.0.0) on Xeon hardware.
+<li> Linux, CentOS7 using the vendor supplied gcc toolchain (4.8.5-16).
+<li> Linux, Ubuntu 16.04(LTS) using the vendor supplied gcc toolchain (5.4.0-6ubuntu1-16.04.11).
+<li> Linux, Ubuntu 16.04(LTS) using OpenCL beignet 1.1.1-2 and https://github.com/intel/compute-runtime/releases/tag/19.07.12410
+<li> Linux, icc-18.0.3 on Xeon hardware with AES, SSE4 and AVX2 support.
+<li> Linux, NVIDIA CUDA 10.0.130 with GTX 980 and 1080, and Titan RTX (aka Turing) hardware.
+<li> MacOS, with Xcode-10.1 and Metal on a 2018 Mac mini.
+</ul>
+
+In the past, we have tested Random123 with additional toolchains and
+hardware.  Although we no longer test on these platforms, we know of
+no reason that they should not work.
+
+<ul>
+<li>Linux, gcc (multiple versions from 3.4.3 through 6.3.0), on x86_64.
 <li>Linux, gcc-4.1.2 and 4.4.1 on i686.
 <li>Linux, gcc-4.8 on ARMv7 (32bit) Freescale/NXP LS1021A & ARM A53 (64bit) Freescale/NXP 1043A.
 <li>Linux, clang-2.9, 3.0, 3.1, 3.3 and 3.6 on x86_64.
 <li>Linux, clang-3.0 and 3.1 with lib++ (2012-04-19 svn checkout) on x86_64.
+<li>Linux, clang-8.0.0 with libc++ on x86_64
 <li>Linux, open64-4.2.4 on x86_64.
 <li>Linux, Intel icc and icpc 12.0.2 on x86_64.
 <li>Linux, NVIDIA CUDA 4.1.15, 4.2.6, 5.5.22 and 7.5.1.  (NOTE: We recommend against the use of CUDA before 4.1)
@@ -346,6 +368,7 @@ Others have reported success on
 <li>Linux, gcc-4.7.2 on Powerpc64 (BlueGene/Q)
 <li>Linux, Portland Group Compiler on Powerpc64 (BlueGene/Q)
 <li>Linux, IBM xlc on Powerpc64 (BlueGene/Q)
+<li>MacOS, Metal on x86_64 CPUs and AMD Radeon R9 M380 GPU
 </ul>
 
 \section warnings Warnings
@@ -379,6 +402,7 @@ We are grateful for contributions from the following users:
 <li> Yan Zhou - MacOS and clang ports
 <li> David Lawrie - allowing 64-bit philox to compile for both host and device with CUDA
 <li> Bogdan Opanchuk - pointing out the inconsistent rotation constants in the implementation of threefry2xW in version 1.07 and earlier.
+<li> Tom Schoonjans - Support for Metal (Apple's successor to OpenCL).
 </ul>
 */
 

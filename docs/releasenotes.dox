@@ -1,6 +1,51 @@
 /**
 @page "Release Notes"
 <dl>
+<dt>1.13 - Mar 22, 2019 </dt>
+<dd><ul>
+<li>       Don't try to declare reverse iterators for r123array in cuda.
+<li>       Add support for Apple's Metal Shading Language (2.1) - contributed by Tom Schoonjans.
+           - Implementation of 32-bit threefry and philox.
+           - metalfeatures.h, plus new macros in compilerfeatures.h,
+             used in threefry.h, philox.h and kat infrastructure.
+	   - tests/kat_metal and examples/pi_metal.
+<li>       Small tweaks to silence warnings from newer gcc, clang, cuda and opencl.
+<li>       Cosmetic changes to doxygen markup, including fixes to work with newer releases of doxygen.
+</ul></dd>
+
+<dt>1.12 - not publicly released</dt>
+<dd>
+</dd>
+
+<dt>1.11 - Mar 30, 2017 (not publicly released)</dt>
+<dd><ul>
+<li>       Changes to conventional/Engine.hpp:
+           - The sequence of generated randoms is unchanged.
+           - shrink the memory footprint by not keeping a copy of the ukey in the Engine and storing the 'elem' counter in v.back().
+           - insertion and extraction operators have changed incompatibly.  I.e.,
+           engines serialized with 1.10 or earlier cannot be deserialized
+           with 1.11, and vice versa.
+           - getkey returns a key_type and setkey takes a key_type.
+           - when ukey_type is not the same as key_type, provide a constructor
+             and a seed method that takes a const key_type& argument.
+           - the getseed method is eliminated.
+<li>       Move uniform.hpp, boxmuller.hpp and u01fixedpt.h into
+           include/Random123.  I.e., make them available in exactly
+           the same way as threefry.h, et al.  It is no longer necessary
+           to copy them from the examples directory to user code.
+<li>       Incorporate ua.hpp into uniform.hpp.
+<li>       Provide insertion, extraction and comparison operators to the
+           aesopenssl16x8_key_t and aesni1xm128_key_t.
+<li>       Separate tests and benchmarks (which are absurdly complicated)
+           from examples (which are meant to be short and simple) in
+           the source tree.  We still test and time the same things, but all
+           that code is in tests/, while the code remaining in examples/
+           really tries to be exemplary. 
+<li>       More careful use cl_uint and elimination of uint from opencl code.
+<li>       Better (but not reliable) support for OpenCL on MacOS.
+<li>       Fix documentation for examples/uniform.hpp.
+</ul></dd>
+
 <dt>1.10 - Apr 12, 2016 </dt>
 <dd><ul>
 <li>       R123EXAMPLE_ENVCONF_SEED environment variable provides seed to most pi_* examples

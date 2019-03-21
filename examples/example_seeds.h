@@ -32,10 +32,12 @@
 #define EXAMPLE_SEED8_U32   0x90abcdefU
 #define EXAMPLE_SEED9_U32   0xdecafbadU
 
+#if R123_USE_64BIT
 #define EXAMPLE_SEED1_U64   R123_64BIT(0xdeadbeef12345678)
 #define EXAMPLE_SEED2_U64   R123_64BIT(0xdecafbadbeadfeed)
+#endif
 
-static inline uint64_t example_seed_u64(uint64_t defaultseed) {
+static inline unsigned long example_seed_u64(uint64_t defaultseed) {
     const char *e = "R123EXAMPLE_ENVCONF_SEED";
     const char *cp = getenv(e);
     unsigned long u;

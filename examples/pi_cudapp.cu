@@ -33,7 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // compute pi via random darts at a square
 
 // functions for boilerplate CUDA init and done
-#include "util_cuda.h"
+#include "../tests/util_cuda.h"
 
 #include <Random123/philox.h>
 
@@ -109,7 +109,7 @@ main(int argc, char **argv)
 
     counthits<<<infop->blocks_per_grid, infop->threads_per_block>>>(count, seed, hits_dev);
 
-    CHECKCALL(cudaThreadSynchronize());
+    CHECKCALL(cudaDeviceSynchronize());
     CHECKCALL(cudaMemcpy(hits_host, hits_dev, nthreads*sizeof(hits_dev[0]),
 		   cudaMemcpyDeviceToHost));
 

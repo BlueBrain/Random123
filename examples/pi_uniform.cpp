@@ -31,7 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <stdio.h>
 #include <Random123/threefry.h>
-#include "uniform.hpp"
+#include <Random123/uniform.hpp>
 
 /* Compute pi, using the u01 conversion with threefry2x64 and threefry2x32 */
 
@@ -82,7 +82,7 @@ int main(int, char **){
     pi<double, Threefry2x32>(kh);
     pi<long double, Threefry2x32>(kh);
 
-    return errs;
+    return !!errs;
 }
 
 template<typename Ftype, typename CBRNG>
@@ -105,6 +105,21 @@ void pi(typename CBRNG::key_type k){
         tries++;
     }
     errs += pi_check(hits, tries);
+
+#if __cplusplus >= 201103L
+    printf("Compute pi with uneg11all (requires C++11):\n");
+    hits = tries = 0;
+    while (tries < NTRIES) {
+        c.v[0]++; /* increment the counter */
+        r = rng(c, k);
+        // x and y in the entire square from (-1,-1) to (1,1)
+        auto a = uneg11all<Ftype>(r);
+        if( a[0]*a[0] + a[1]*a[1] < 1.0 )
+            hits++;
+        tries++;
+    }
+    errs += pi_check(hits, tries);
+#endif
 
     printf("Compute pi with u01:\n");
     hits = tries = 0;

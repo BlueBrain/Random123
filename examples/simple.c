@@ -35,22 +35,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int main(int argc, char **argv){
     int i;
-    uint64_t seed = example_seed_u64(EXAMPLE_SEED1_U64); // example of user-settable seed
+    uint32_t seed = example_seed_u32(EXAMPLE_SEED1_U32); // example of user-settable seed
     
     /* while this example starts the counter from 0 and then increments by 0,
        this could start anywhere and increment by any stride or pattern that
        makes sense for the application as long as it produces a non-repeating stream */
-    threefry2x64_ctr_t  ctr = {{0,0}};
+    threefry4x32_ctr_t  ctr = {{0,0,0,0}};
     /* we illustrate one user-specified seed and one constant as the key */
-    threefry2x64_key_t key = {{seed, EXAMPLE_SEED2_U64}};
+    threefry4x32_key_t key = {{seed, EXAMPLE_SEED2_U32,0,0}};
     (void)argc; (void)argv; /* unused */
     printf( "The first few randoms with key 0x%llx 0x%llx\n",
 	   (unsigned long long)key.v[0], (unsigned long long)key.v[1]);
     for(i=0; i<10; ++i){
         ctr.v[0] = i;
 	{
-          threefry2x64_ctr_t rand = threefry2x64(ctr, key);
-          printf("ctr: %llx %llx threefry2x64(20, ctr, key): %llx %llx\n",
+          threefry4x32_ctr_t rand = threefry4x32(ctr, key);
+          printf("ctr: %llx %llx threefry4x32(20, ctr, key): %llx %llx\n",
                  (unsigned long long)ctr.v[0], (unsigned long long)ctr.v[1],
                  (unsigned long long)rand.v[0], (unsigned long long)rand.v[1]);
 	}

@@ -159,12 +159,12 @@ struct r123m128i{
     r123m128i& operator=(const __m128i& rhs){ m=rhs; return *this;}
     r123m128i& operator=(R123_ULONG_LONG n){ m = _mm_set_epi64x(0, n); return *this;}
 #if R123_USE_CXX11_EXPLICIT_CONVERSIONS
-    // With C++0x we can attach explicit to the bool conversion operator
+    // With C++11 we can attach explicit to the bool conversion operator
     // to disambiguate undesired promotions.  For g++, this works
     // only in 4.5 and above.
     explicit operator bool() const {return _bool();}
 #else
-    // Pre-C++0x, we have to do something else.  Google for the "safe bool"
+    // Pre-C++11, we have to do something else.  Google for the "safe bool"
     // idiom for other ideas...
     operator const void*() const{return _bool()?this:0;}
 #endif
