@@ -1,3 +1,11 @@
+This is a modified version of https://github.com/DEShawResearch/random123
+
+# Funding & Acknowledgment
+ 
+This repository was originally created for the purpose of holding the source code for Random123 published by D. E. Shaw Research (https://www.deshawresearch.com/resources_random123.html). By putting the source code on GitHub, the library could more easily integrated into the build pipelines of the various Blue Brain softwares which make use of the Random123 capabilities. Since that time, D. E. Shaw Research has adopted their own release on GitHub (https://github.com/DEShawResearch/random123). While we update our builds to switch to the official release, this repository will remain online until it is no longer needed.
+ 
+Copyright © 2015-2024 Blue Brain Project/EPFL
+
 # Random123: a Library of Counter-Based Random Number Generators
 
 <!-- Note that this file is both README.md and the doxygen mainpage.
@@ -421,5 +429,3 @@ We are grateful for contributed bug-fixes and portability enhancements from the 
 <li> Karl Magdsick - documentation in uniform.hpp
 <li> KT Thompson - Visual Studio 2015 and ibm xlc compiler ports
 </ul>
-
-
