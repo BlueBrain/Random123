@@ -1,0 +1,3 @@
+This repository was originally created for the purpose of holding the source code for Random123 published by D. E. Shaw Research (https://www.deshawresearch.com/resources_random123.html). By putting the source code on GitHub, the library could more easily integrated into the build pipelines of the various Blue Brain softwares which make use of the Random123 capabilities. Since that time, D. E. Shaw Research has adopted their own release on GitHub (https://github.com/DEShawResearch/random123). While we update our builds to switch to the official release, this repository will remain online until it is no longer needed.
+ 
+Copyright © 2015-2022 Blue Brain Project/EPFL
